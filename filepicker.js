@@ -10,7 +10,7 @@
 
   child = null;
 
-  apikey = '';
+  apikey = 'Arsf53GD8SbClNKJbB1cXz';
 
   url = 'https://www.filepicker.io/api/path/storage/';
 
@@ -19,8 +19,6 @@
   params.shift();
 
   params.shift();
-
-  console.log(params);
 
   run = 'tar cvzf tar.tgz ';
 
@@ -38,10 +36,23 @@
       if (!error) {
         run = 'curl -F \"fileUpload=@tar.tgz\" -F \"apikey=' + apikey + '\" ' + url + 'files.tgz';
         return child = exec(run, function(error, stdout, stderr) {
-          return console.log(stdout);
+          return console.log("Sharing link is: " + stdout['data'][0][url]);
         });
       }
     });
+  } else if (params.length === 1) {
+    fs.stat(params[0], function(error, stats) {
+      if (stats.isFile() === true) {
+        run = 'curl --progress-bar -F \"fileUpload=@' + params[0] + '\" -F \"apikey=' + apikey + '\" ' + url + params[0];
+        return child = exec(run, function(error, stdout, stderr) {
+          var parsed;
+          parsed = JSON.parse(stdout);
+          return console.log("Sharing link is: " + parsed.data[0].url);
+        });
+      }
+    });
+  } else {
+    console.log("sharefile file || dir || file file");
   }
 
 }).call(this);
