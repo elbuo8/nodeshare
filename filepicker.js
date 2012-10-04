@@ -20,9 +20,8 @@
 
   params.shift();
 
-  run = 'tar cvzf tar.tgz ';
-
   if (params.length > 1) {
+    run = 'tar cvzf tar.tgz ';
     params.forEach(function(val, index, array) {
       run += val + " ";
       return fs.stat(val, function(error, stats) {
@@ -36,7 +35,11 @@
       if (!error) {
         run = 'curl -F \"fileUpload=@tar.tgz\" -F \"apikey=' + apikey + '\" ' + url + 'files.tgz';
         return child = exec(run, function(error, stdout, stderr) {
-          return console.log("Sharing link is: " + stdout['data'][0][url]);
+          var parsed;
+          parsed = JSON.parse(stdout);
+          console.log("Sharing link is: " + parsed.data[0].url);
+          run = 'rm tar.tgz';
+          return child = exec(run, function(error, stdout, stderr) {});
         });
       }
     });
@@ -49,6 +52,20 @@
           parsed = JSON.parse(stdout);
           return console.log("Sharing link is: " + parsed.data[0].url);
         });
+      } else if (stats.isDirectory() === true) {
+        run = 'tar cvzf ' + params[0] + '.tgz ' + params[0];
+        return child = exec(run, function(error, stdout, stderr) {
+          if (!error) {
+            run = 'curl --progress-bar -F \"fileUpload=@' + params[0] + '.tgz\" -F \"apikey=' + apikey + '\" ' + url + params[0];
+            return child = exec(run, function(error, stdout, stderr) {
+              var parsed;
+              parsed = JSON.parse(stdout);
+              return console.log("Sharing link is: " + parsed.data[0].url);
+            });
+          }
+        });
+      } else {
+        return console.log("Invalid file || dir");
       }
     });
   } else {
