@@ -10,7 +10,7 @@
 
   child = null;
 
-  apikey = 'Arsf53GD8SbClNKJbB1cXz';
+  apikey = '';
 
   url = 'https://www.filepicker.io/api/path/storage/';
 
